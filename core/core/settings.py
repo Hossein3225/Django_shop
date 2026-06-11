@@ -37,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #theer part app
+    "django.contrib.sites",  
+    "allauth",  
+    "allauth.account",
+    #local app
+    'website',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -46,6 +53,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -136,10 +144,44 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = config("EMAIL_HOST",default="smtp4dev")
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool ,default=False)
-EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool ,default=False)
-EMAIL_PORT = config("EMAIL_PORT", cast=int,default=25)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER",default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD",default="")
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = config("EMAIL_HOST",default="smtp4dev")
+# EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool ,default=False)
+# EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool ,default=False)
+# EMAIL_PORT = config("EMAIL_PORT", cast=int,default=25)
+# EMAIL_HOST_USER = config("EMAIL_HOST_USER",default="")
+# EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD",default="")
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+SHOW_DEBUGGER_TOOLBAR = config("SHOW_DEBUGGER_TOOLBAR", cast=bool, default=True)
+if SHOW_DEBUGGER_TOOLBAR:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
+    import socket  # only if you haven't already imported this
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    
+
+#allauth setting
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'optional' 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGOUT_ON_GET = True
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'

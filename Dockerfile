@@ -1,4 +1,4 @@
-FROM python:3.14
+FROM python:3.13-slim
 
 LABEL maintainer="rahmanitkd@gmail.com"
 
@@ -8,6 +8,6 @@ WORKDIR /usr/src/app
 
 COPY ./requirements.txt .
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install -i https://mirror-pypi.runflare.com/simple -r requirements.txt
 
 COPY ./core .

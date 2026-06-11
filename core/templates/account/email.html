@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static allauth i18n %}
+{% block title %}
+    {% trans "Email Addresses" %}
+{% endblock title %}
+{% block content %}
+<div class="con tainer content-space-3 content-space-t-lg-4 content-space-b-lg-3">
+    <div class="flex-grow-1 mx-auto" style="max-width: 28rem;">
+            <div class="text-center mb-5 mb-md-7">
+                <h1 class="h2">"Email Addresses"</h1>
+            </div>
+        {% if emailaddresses %}
+            <p>
+                {% trans 'The following email addresses are associated with your account:' %}
+            </p>
+            <form form=form action={% url 'account_email' %} method="post" tags="email,list">
+                    {% csrf_token %}
+                    {% for radio in emailaddress_radios %}
+                        {% with emailaddress=radio.emailaddress %}
+                            <field type="radio" checked=radio.checked name="email" value=emailaddress.email id=radio.id>
+                                    {{ emailaddress.email }}
+                                    {% if emailaddress.verified %}
+                                        <strongtags="success,email,verified">
+                                            {% translate "Verified" %}
+                                        </strong>
+                                    {% else %}
+                                        <strong tags="warning,email,unverified">
+                                            {% translate "Unverified" %}
+                                        </strong>
+                                    {% endif %}
+                                    {% if emailaddress.primary %}
+                                        <strong tags="email,primary">
+                                            {% translate "Primary" %}
+                                        </strong>
+                                    {% endif %}
+                            </field>
+                        {% endwith %}
+                    {% endfor %}
+                <div>
+                    <button type="submit" name="action_primary">
+                        {% trans 'Make Primary' %}
+                    </button>
+                    <button tags="secondary" type="submit" name="action_send">
+                        {% trans 'Re-send Verification' %}
+                    </button>
+                    <button tags="danger,delete" type="submit" name="action_remove">
+                        {% trans 'Remove' %}
+                    </button>
+                </div>
+        {% else %}
+            {% include "account/snippets/warn_no_email.html" %}
+        {% endif %}
+        {% if can_add_email %}
+            <div class="text-center mb-5 mb-md-7">
+                <h1 class="h2">{% trans "Add Email Address" %}</h1>
+            </div>
+            <form form=form method="post" action={% url 'account_email'%} tags="email,add">
+                {% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label" for="id_add_email">
+                    ایمیل شما
+                </label>
+                <input
+                    type="text"
+                    class="form-control form-control-lg text-center"
+                    name="add_email"
+                    id="id_add_email"
+                    placeholder="email@site.com"
+                    value="{{ form.login.value|default:'' }}"
+                >
+                <div class="d-grid mb-3">
+                    <button type="submit" name="action_add" class="btn btn-primary btn-lg">
+                        افزودن ایمیل
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<script src="{% static 'js/account.js' %}"></script>
+<script src="{% static 'js/onload.js' %}"></script>
+<script data-allauth-onload="allauth.account.forms.manageEmailForm" type="application/json">
+    {
+        "i18n": {"confirmDelete": "{% trans 'Do you really want to remove the selected email address?' %}"}
+    }
+</script>
+{% endblock content %}
